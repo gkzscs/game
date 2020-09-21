@@ -1,8 +1,18 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <cstdio>
 using namespace std;
 
+
+enum ValueType
+{
+	Attack,
+	Defend,
+	Life,
+	CurLife,
+	Money
+};
 
 struct Hero
 {
@@ -10,10 +20,79 @@ struct Hero
 	string job = "伏魔师";
 	string sex = "男";
 	int age = 16;
+	int money = 100;
 	int life = 100;
 	int attack = 10;
 	int defend = 10;
 	int curLife = 10;
+
+	int skill() 
+	{
+		cout << "你使出两剑归宗" << endl;
+		return attack*2;
+	}
+};
+
+struct Ghost
+{
+	virtual int skill() { return 0; }
+};
+
+struct Zombie : Ghost
+{
+	string name = "丧尸";
+	string job = "普通怪";
+	string sex = "男";
+	int age = 23;
+	int money = 50;
+	int life = 50;
+	int attack = 8;
+	int defend = 5;
+	int curLife = 50;	
+	
+	int skill() 
+	{
+		cout << name << "对你扑咬" << endl;
+		return attack*1.5;
+	}
+};
+
+struct NagaQueue : Ghost
+{
+	string name = "蛇妖";
+	string job = "精英怪";
+	string sex = "女";
+	int age = 800;
+	int money = 10000;
+	int life = 10000;
+	int attack = 388;
+	int defend = 100;
+	int curLife = 388;
+	
+	int skill() 
+	{
+		cout << name << "朝你娇媚一笑，似乎暗藏玄机" << endl;
+		return attack*2;
+	}
+};
+
+struct NashBaron : Ghost
+{
+	string name = "纳什男爵";
+	string job = "Boss";
+	string sex = "男";
+	int age = 10000;
+	int money = 100*10000;
+	int life = 100*10000;
+	int attack = 999;
+	int defend = 999;
+	int curLife = 100*10000;
+	
+	int skill() 
+	{
+		cout << name << "发出怒吼，吐出龙息" << endl;
+		return attack*2;
+	}
 };
 
 
@@ -29,6 +108,12 @@ void chooseMainAction();
 void purchaseTool();
 void vanquishGhost();
 void heroInfo();
+bool checkPurchase(int n);
+void changeValue(ValueType type, int n);
+void fightZombie();
+void fightNagaQueue();
+void fightNashBaron();
+void fight(Ghost &ghost);
 
 
 int main()
@@ -99,6 +184,7 @@ void heroInfo()
 		"职业：" + hero.job + "\n"
 		"性别：" + hero.sex + "\n"
 		"年龄：" + to_string(hero.age) + "\n"
+		"金钱：" + to_string(hero.money) + "\n"
 		"生命值：" + to_string(hero.curLife) + "/" + to_string(hero.life) + "\n"
 		"攻击力：" + to_string(hero.attack) + "\n"
 		"防御力：" + to_string(hero.defend);
@@ -119,7 +205,7 @@ void purchaseTool()
 		"7.白开水（可回复50点生命值）- 5铜币\n"
 		"8.天山雪莲（提高生命上限100点） - 100金币\n"
 		"9.复活十字架（战斗死亡后，可自动重生一次） - 1000金币";
-	cout << str << endl;
+	cout << endl << str << endl;
 
 	// Tip how to choose
 	up();
@@ -130,11 +216,179 @@ void purchaseTool()
 
 	// Deal with choose
 	if (key == '0') return;
-	else if (key == '1') ;
-	else if (key == '2') ;
+	bool res = checkPurchase(key - '0');
+	if (!res) 
+	{
+		purchaseTool();
+		return;
+	}
+
+	if (key == '1') changeValue(Attack, 10);
+	else if (key == '2') changeValue(Attack, 30);
+	else if (key == '3') changeValue(Attack, 999);
+	else if (key == '4') 
+	{
+		changeValue(Attack, 1333);
+		changeValue(Defend, -300);
+	}
+	else if (key == '5') changeValue(Defend, 10);
+	else if (key == '6') changeValue(Defend, 50);
+
+	// You can purchase again
+	purchaseTool();
 }
 
 void vanquishGhost()
 {
+	string info = "1.丧尸\n"
+		"2.蛇妖\n"
+		"3.纳什男爵";
+	cout << info << endl;
+	up();
+
+	cin >> key;
+	while (key != '0')
+	{
+		if (key == '1') fightZombie();
+		else if (key == '2') fightNagaQueue();
+		else if (key == '3') fightNashBaron();
+		else cout << "未找到怪物" << endl;
+
+		// You can fight again
+		vanquishGhost();
+	}
+}
+
+bool checkPurchase(int n)
+{
+	int price = 0;
+	string name = "";
+
+	switch (n)
+	{
+	case 1:
+		price = 10;
+		name = "木剑";
+		break;
+	case 2:
+		price = 30;
+		name = "铜剑";
+		break;
+	case 3:
+		price = 10000*10000;
+		name = "干将莫邪";
+		break;
+	case 4:
+		price = 10000*10000;
+		name = "屠龙宝刀";
+		break;
+	case 5:
+		price = 10;
+		name = "布衣";
+		break;
+	case 6:
+		price = 88*100;
+		name = "锁子甲";
+		break;
+	case 7:
+		price = 5;
+		name = "白开水";
+		break;
+	case 8:
+		price = 100*10000;
+		name = "天山雪莲";
+		break;
+	case 9:
+		price = 1000*10000;
+		name = "复活十字架";
+		break;
+	default:
+		break;
+	}
+
+	// Check the price with your money
+	string info;
+	if (price > hero.money) 
+	{
+		info = "金币不够，购买失败！";
+		cout << info << endl;
+		return false;
+	}
+	else 
+	{
+		info = "购买成功，获得" + name;
+	}
+	cout << info << endl;
+
+	// Change gold
+	changeValue(Money, -price);
+	return true;
+}
+
+void changeValue(ValueType type, int n)
+{
+	string info;
+	string valueName = "";
+	int *value = nullptr;
+
+	switch (type)
+	{
+	case Attack:
+		valueName = "攻击力";
+		value = &hero.attack;
+		break;
+	case Defend:
+		valueName = "防御力";
+		value = &hero.defend;
+		break;
+	case Life:
+		valueName = "生命上限";
+		value = &hero.life;
+		break;
+	case CurLife:
+		valueName = "当前生命值";
+		value = &hero.curLife;
+		break;
+	case Money:
+		valueName = "金钱数量";
+		value = &hero.money;
+		break;
+	default:
+		cout << "发现奇奇怪怪的东东" << endl;
+		return;
+	}
+	
+	if (n > 0) info = valueName + "+" + to_string(n);
+	else if (n == 0) info = valueName + "不变";
+	else if (n < 0) info = valueName + "-" + to_string(n);
+
+	cout << info << endl;
+	*value += n;
+	cout << "你的" + valueName + "由" << to_string(*value-n) << "变为了" << to_string(*value) << endl;
+}
+
+void fightZombie()
+{
+	string info = "站在你面前的是一只样貌丑陋的丧尸，它嘴里流着恶心的液体，扭曲着四肢，顶着碎掉一半的脑子向你扑了过来……";
+	cout << endl << info << endl;
+
+	Zombie zombie;
+	fight(zombie);
+}
+
+void fightNagaQueue()
+{
 
 }
+
+void fightNashBaron()
+{
+
+}
+
+void fight(Ghost &ghost)
+{
+
+}
+
+
