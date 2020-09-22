@@ -35,6 +35,15 @@ struct Hero
 
 struct Ghost
 {
+	string name;
+	string job;
+	string sex;
+	int age;
+	int money;
+	int life;
+	int attack;
+	int defend;
+	int curLife;
 	virtual int skill() { return 0; }
 };
 
@@ -114,6 +123,10 @@ void fightZombie();
 void fightNagaQueue();
 void fightNashBaron();
 void fight(Ghost &ghost);
+void fightInfo(Ghost &ghost);
+void heroFightRound(Ghost &ghost);
+void ghostFightRound(Ghost &ghost);
+void endFight(Ghost &ghost);
 
 
 int main()
@@ -388,7 +401,81 @@ void fightNashBaron()
 
 void fight(Ghost &ghost)
 {
+	while (hero.curLife > 0 && ghost.curLife > 0)
+	{
+		// Hero's fight round
+		fightInfo(ghost);
+		heroFightRound(ghost);
 
+		// Ghost's fight round
+		fightInfo(ghost);
+		ghostFightRound(ghost);
+	}
+
+	// End fight
+	endFight(ghost);
+}
+
+void fightInfo(Ghost &ghost)
+{
+	string info = "战斗信息：\n"
+		+ ghost.name + "(" + to_string(ghost.curLife) + "/" + to_string(ghost.life) + ")\n"
+		+ hero.name + "(" + to_string(hero.curLife) + "/" + to_string(hero.life) + ")\n"
+		"-------------------------";
+	cout << info << endl;
+}
+
+void heroFightRound(Ghost &ghost)
+{
+	cout << "你的回合……" << endl;
+	string str = "1.普通攻击（默認） 2.技能 3.逃跑";
+
+	cin >> key;
+	if (key == '2') 
+	{
+		int n = hero.skill();
+		int damage = (n-ghost.defend < 1 ? 1 : n-ghost.defend);
+		cout << "对" << ghost.name << "造成了" << damage << "点伤害" << endl;
+		ghost.curLife -= damage;
+	}
+	// No use now
+	else if (key == '3')
+	{
+		cout << "逃跑失败！" << endl;
+	}		
+	else 
+	{
+		int n = hero.attack;
+		int damage = (n-ghost.defend < 1 ? 1 : n-ghost.defend);
+		cout << "对" << ghost.name << "造成了" << damage << "点伤害" << endl;
+		ghost.curLife -= damage;
+	}
+}
+
+void ghostFightRound(Ghost &ghost)
+{
+	cout << ghost.name << "的回合……" << endl;
+	int n = ghost.attack;
+	int damage = (n-hero.defend < 1 ? 1 : n-hero.defend);
+	cout << ghost.name << "对你" << "造成了" << damage << "点伤害" << endl;
+	hero.curLife -= damage;
+}
+
+void endFight(Ghost &ghost)
+{
+	if (ghost.curLife <= 0) 
+	{
+		cout << "战斗胜利！你击败了" << ghost.name << "，获得了" << ghost.money << "个铜币" << endl;
+		hero.money += ghost.money;
+		return;
+	}
+
+	// If you die, then end the game
+	if (hero.curLife <= 0) 
+	{
+		cout << "惜败！你被" << ghost.name << "杀死了！" << endl;
+		endGame();
+	}
 }
 
 
