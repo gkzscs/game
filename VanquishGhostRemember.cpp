@@ -24,7 +24,7 @@ struct Hero
 	int life = 100;
 	int attack = 10;
 	int defend = 10;
-	int curLife = 10;
+	int curLife = 100;
 
 	int skill() 
 	{
@@ -49,15 +49,18 @@ struct Ghost
 
 struct Zombie : Ghost
 {
-	string name = "丧尸";
-	string job = "普通怪";
-	string sex = "男";
-	int age = 23;
-	int money = 50;
-	int life = 50;
-	int attack = 8;
-	int defend = 5;
-	int curLife = 50;	
+	Zombie()
+	{
+		name = "丧尸";
+		job = "普通怪";
+		sex = "男";
+		age = 23;
+		money = 50;
+		life = 50;
+		attack = 8;
+		defend = 5;
+		curLife = 50;	
+	}
 	
 	int skill() 
 	{
@@ -68,16 +71,19 @@ struct Zombie : Ghost
 
 struct NagaQueue : Ghost
 {
-	string name = "蛇妖";
-	string job = "精英怪";
-	string sex = "女";
-	int age = 800;
-	int money = 10000;
-	int life = 10000;
-	int attack = 388;
-	int defend = 100;
-	int curLife = 388;
-	
+	NagaQueue()
+	{
+		name = "蛇妖";
+		job = "精英怪";
+		sex = "女";
+		age = 800;
+		money = 10000;
+		life = 10000;
+		attack = 388;
+		defend = 100;
+		curLife = 388;
+	}
+
 	int skill() 
 	{
 		cout << name << "朝你娇媚一笑，似乎暗藏玄机" << endl;
@@ -87,15 +93,18 @@ struct NagaQueue : Ghost
 
 struct NashBaron : Ghost
 {
-	string name = "纳什男爵";
-	string job = "Boss";
-	string sex = "男";
-	int age = 10000;
-	int money = 100*10000;
-	int life = 100*10000;
-	int attack = 999;
-	int defend = 999;
-	int curLife = 100*10000;
+	NashBaron()
+	{
+		name = "纳什男爵";
+		job = "Boss";
+		sex = "男";
+		age = 10000;
+		money = 100*10000;
+		life = 100*10000;
+		attack = 999;
+		defend = 999;
+		curLife = 100*10000;
+	}
 	
 	int skill() 
 	{
@@ -122,11 +131,11 @@ void changeValue(ValueType type, int n);
 void fightZombie();
 void fightNagaQueue();
 void fightNashBaron();
-void fight(Ghost &ghost);
-void fightInfo(Ghost &ghost);
-void heroFightRound(Ghost &ghost);
-void ghostFightRound(Ghost &ghost);
-void endFight(Ghost &ghost);
+void fight(Ghost *ghost);
+void fightInfo(Ghost *ghost);
+void heroFightRound(Ghost *ghost);
+void ghostFightRound(Ghost *ghost);
+void endFight(Ghost *ghost);
 
 
 int main()
@@ -246,6 +255,8 @@ void purchaseTool()
 	}
 	else if (key == '5') changeValue(Defend, 10);
 	else if (key == '6') changeValue(Defend, 50);
+	else if (key == '7') changeValue(CurLife, 50);
+	else if (key == '8') changeValue(Life, 100);
 
 	// You can purchase again
 	purchaseTool();
@@ -257,9 +268,8 @@ void vanquishGhost()
 		"2.蛇妖\n"
 		"3.纳什男爵";
 	cout << info << endl;
+	
 	up();
-
-	cin >> key;
 	while (key != '0')
 	{
 		if (key == '1') fightZombie();
@@ -386,27 +396,36 @@ void fightZombie()
 	cout << endl << info << endl;
 
 	Zombie zombie;
-	fight(zombie);
+	fight(&zombie);
 }
 
 void fightNagaQueue()
 {
+	string info = "你看向那妖艳的蛇发女子，不由地怔住了……";
+	cout << endl << info << endl;
 
+	NagaQueue nagaQueue;
+	fight(&nagaQueue);
 }
 
 void fightNashBaron()
 {
+	string info = "峡谷传来一声怒吼，整个地面都开始颤动起来，一头巨龙高昂起头颅，口吐龙息，声势滔天。你定了定神，握紧手中长剑，踏步向前……";
+	cout << endl << info << endl;
 
+	NashBaron nashBaron;
+	fight(&nashBaron);
 }
 
-void fight(Ghost &ghost)
+void fight(Ghost *ghost)
 {
-	while (hero.curLife > 0 && ghost.curLife > 0)
+	while (hero.curLife > 0 && ghost->curLife > 0)
 	{
 		// Hero's fight round
 		fightInfo(ghost);
 		heroFightRound(ghost);
 
+		if (hero.curLife <= 0 || ghost->curLife <= 0) break;
 		// Ghost's fight round
 		fightInfo(ghost);
 		ghostFightRound(ghost);
@@ -416,27 +435,28 @@ void fight(Ghost &ghost)
 	endFight(ghost);
 }
 
-void fightInfo(Ghost &ghost)
+void fightInfo(Ghost *ghost)
 {
 	string info = "战斗信息：\n"
-		+ ghost.name + "(" + to_string(ghost.curLife) + "/" + to_string(ghost.life) + ")\n"
+		+ ghost->name + "(" + to_string(ghost->curLife) + "/" + to_string(ghost->life) + ")\n"
 		+ hero.name + "(" + to_string(hero.curLife) + "/" + to_string(hero.life) + ")\n"
 		"-------------------------";
 	cout << info << endl;
 }
 
-void heroFightRound(Ghost &ghost)
+void heroFightRound(Ghost *ghost)
 {
 	cout << "你的回合……" << endl;
 	string str = "1.普通攻击（默認） 2.技能 3.逃跑";
+	cout << str << endl;
 
 	cin >> key;
 	if (key == '2') 
 	{
 		int n = hero.skill();
-		int damage = (n-ghost.defend < 1 ? 1 : n-ghost.defend);
-		cout << "对" << ghost.name << "造成了" << damage << "点伤害" << endl;
-		ghost.curLife -= damage;
+		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		cout << "对" << ghost->name << "造成了" << damage << "点伤害" << endl;
+		ghost->curLife -= damage;
 	}
 	// No use now
 	else if (key == '3')
@@ -446,34 +466,34 @@ void heroFightRound(Ghost &ghost)
 	else 
 	{
 		int n = hero.attack;
-		int damage = (n-ghost.defend < 1 ? 1 : n-ghost.defend);
-		cout << "对" << ghost.name << "造成了" << damage << "点伤害" << endl;
-		ghost.curLife -= damage;
+		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		cout << "你使出普通攻击，对" << ghost->name << "造成了" << damage << "点伤害" << endl;
+		ghost->curLife -= damage;
 	}
 }
 
-void ghostFightRound(Ghost &ghost)
+void ghostFightRound(Ghost *ghost)
 {
-	cout << ghost.name << "的回合……" << endl;
-	int n = ghost.attack;
+	cout << ghost->name << "的回合……" << endl;
+	int n = ghost->skill();
 	int damage = (n-hero.defend < 1 ? 1 : n-hero.defend);
-	cout << ghost.name << "对你" << "造成了" << damage << "点伤害" << endl;
+	cout << ghost->name << "对你" << "造成了" << damage << "点伤害" << endl;
 	hero.curLife -= damage;
 }
 
-void endFight(Ghost &ghost)
+void endFight(Ghost *ghost)
 {
-	if (ghost.curLife <= 0) 
+	if (ghost->curLife <= 0) 
 	{
-		cout << "战斗胜利！你击败了" << ghost.name << "，获得了" << ghost.money << "个铜币" << endl;
-		hero.money += ghost.money;
+		cout << "战斗胜利！你击败了" << ghost->name << "，获得了" << ghost->money << "个铜币" << endl;
+		hero.money += ghost->money;
 		return;
 	}
 
 	// If you die, then end the game
 	if (hero.curLife <= 0) 
 	{
-		cout << "惜败！你被" << ghost.name << "杀死了！" << endl;
+		cout << "惜败！你被" << ghost->name << "杀死了！" << endl;
 		endGame();
 	}
 }
