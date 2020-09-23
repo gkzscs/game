@@ -238,7 +238,7 @@ void chooseMainAction()
 		"3.角色信息\n"
 		"按`Q`键退出游戏\n";
 	setColor(32);
-	cout << act << endl;
+	cout << endl << act << endl;
 	restoreColor();
 
 	cin >> key;
