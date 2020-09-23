@@ -120,6 +120,8 @@ static Hero hero;
 void startGame();
 void endGame();
 void archiveGame();
+void setColor(int n);
+void restoreColor();
 void tellStory();
 void up();
 void chooseMainAction();
@@ -161,12 +163,26 @@ void endGame()
 {
 	key = 'q';
 	string str = "胜败乃兵家常事，少侠请重新来过！";
+	setColor(43);
+	setColor(31);
 	cout << str << endl;
+	restoreColor();
 }
 
 void archiveGame()
 {
 
+}
+
+void setColor(int n)
+{
+	cout << "\033[" + to_string(n) + "m";
+}
+
+void restoreColor()
+{
+	cout << "\033[39m";
+	cout << "\033[49m";
 }
 
 void tellStory()
@@ -176,12 +192,17 @@ void tellStory()
 		"这些门派中，有一个小门派名为伏魔派，以降妖伏魔为己任，虽力量弱小，却义无反顾。\n"
 		"我们故事的主角，便是你——" + hero.name + "，来自伏魔派的入门弟子。\n"
 		"如今天下大乱，是时候出发了……";
+	setColor(44);
+	setColor(32);
 	cout << story << endl;
+	restoreColor();
 }
 
 void up()
 {
+	setColor(34);
 	cout << "按`0`键返回上一级" << endl;
+	restoreColor();
 	cin >> key;
 }
 
@@ -191,7 +212,9 @@ void chooseMainAction()
 		"2.购买道具\n"
 		"3.角色信息\n"
 		"按`Q`键退出游戏\n";
+	setColor(32);
 	cout << act << endl;
+	restoreColor();
 
 	cin >> key;
 	if (key == 'q' || key == 'Q') endGame();
@@ -210,7 +233,9 @@ void heroInfo()
 		"生命值：" + to_string(hero.curLife) + "/" + to_string(hero.life) + "\n"
 		"攻击力：" + to_string(hero.attack) + "\n"
 		"防御力：" + to_string(hero.defend);
+	setColor(32);
 	cout << info << endl;
+	restoreColor();
 
 	up();
 	while (key != '0') cin >> key;
@@ -227,7 +252,9 @@ void purchaseTool()
 		"7.白开水（可回复50点生命值）- 5铜币\n"
 		"8.天山雪莲（提高生命上限100点） - 100金币\n"
 		"9.复活十字架（战斗死亡后，可自动重生一次） - 1000金币";
+	setColor(32);
 	cout << endl << str << endl;
+	restoreColor();
 
 	// Tip how to choose
 	up();
@@ -267,7 +294,9 @@ void vanquishGhost()
 	string info = "1.丧尸\n"
 		"2.蛇妖\n"
 		"3.纳什男爵";
+	setColor(31);
 	cout << info << endl;
+	restoreColor();
 	
 	up();
 	while (key != '0')
@@ -334,12 +363,16 @@ bool checkPurchase(int n)
 	if (price > hero.money) 
 	{
 		info = "金币不够，购买失败！";
+		setColor(33);
 		cout << info << endl;
+		restoreColor();
 		return false;
 	}
 	else 
 	{
+		setColor(32);
 		info = "购买成功，获得" + name;
+		restoreColor();
 	}
 	cout << info << endl;
 
@@ -385,15 +418,19 @@ void changeValue(ValueType type, int n)
 	else if (n == 0) info = valueName + "不变";
 	else if (n < 0) info = valueName + "-" + to_string(n);
 
+	setColor(35);
 	cout << info << endl;
 	*value += n;
 	cout << "你的" + valueName + "由" << to_string(*value-n) << "变为了" << to_string(*value) << endl;
+	restoreColor();
 }
 
 void fightZombie()
 {
 	string info = "站在你面前的是一只样貌丑陋的丧尸，它嘴里流着恶心的液体，扭曲着四肢，顶着碎掉一半的脑子向你扑了过来……";
+	setColor(34);
 	cout << endl << info << endl;
+	restoreColor();
 
 	Zombie zombie;
 	fight(&zombie);
@@ -402,7 +439,9 @@ void fightZombie()
 void fightNagaQueue()
 {
 	string info = "你看向那妖艳的蛇发女子，不由地怔住了……";
+	setColor(35);
 	cout << endl << info << endl;
+	restoreColor();
 
 	NagaQueue nagaQueue;
 	fight(&nagaQueue);
@@ -411,7 +450,9 @@ void fightNagaQueue()
 void fightNashBaron()
 {
 	string info = "峡谷传来一声怒吼，整个地面都开始颤动起来，一头巨龙高昂起头颅，口吐龙息，声势滔天。你定了定神，握紧手中长剑，踏步向前……";
+	setColor(31);
 	cout << endl << info << endl;
+	restoreColor();
 
 	NashBaron nashBaron;
 	fight(&nashBaron);
@@ -441,43 +482,58 @@ void fightInfo(Ghost *ghost)
 		+ ghost->name + "(" + to_string(ghost->curLife) + "/" + to_string(ghost->life) + ")\n"
 		+ hero.name + "(" + to_string(hero.curLife) + "/" + to_string(hero.life) + ")\n"
 		"-------------------------";
+	setColor(46);
+	setColor(33);
 	cout << info << endl;
+	restoreColor();
 }
 
 void heroFightRound(Ghost *ghost)
 {
+	setColor(36);
 	cout << "你的回合……" << endl;
 	string str = "1.普通攻击（默認） 2.技能 3.逃跑";
+	setColor(33);
 	cout << str << endl;
+	restoreColor();
 
 	cin >> key;
 	if (key == '2') 
 	{
 		int n = hero.skill();
 		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		setColor(31);
 		cout << "对" << ghost->name << "造成了" << damage << "点伤害" << endl;
+		restoreColor();
 		ghost->curLife -= damage;
 	}
 	// No use now
 	else if (key == '3')
 	{
+		setColor(31);
 		cout << "逃跑失败！" << endl;
+		restoreColor();
 	}		
 	else 
 	{
 		int n = hero.attack;
 		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		setColor(31);
 		cout << "你使出普通攻击，对" << ghost->name << "造成了" << damage << "点伤害" << endl;
+		restoreColor();
 		ghost->curLife -= damage;
 	}
 }
 
 void ghostFightRound(Ghost *ghost)
 {
+	setColor(36);
 	cout << ghost->name << "的回合……" << endl;
 	int n = ghost->skill();
 	int damage = (n-hero.defend < 1 ? 1 : n-hero.defend);
+	setColor(31);
 	cout << ghost->name << "对你" << "造成了" << damage << "点伤害" << endl;
+	restoreColor();
 	hero.curLife -= damage;
 }
 
@@ -485,7 +541,9 @@ void endFight(Ghost *ghost)
 {
 	if (ghost->curLife <= 0) 
 	{
+		setColor(32);
 		cout << "战斗胜利！你击败了" << ghost->name << "，获得了" << ghost->money << "个铜币" << endl;
+		restoreColor();
 		hero.money += ghost->money;
 		return;
 	}
@@ -493,7 +551,9 @@ void endFight(Ghost *ghost)
 	// If you die, then end the game
 	if (hero.curLife <= 0) 
 	{
+		setColor(31);
 		cout << "惜败！你被" << ghost->name << "杀死了！" << endl;
+		restoreColor();
 		endGame();
 	}
 }
