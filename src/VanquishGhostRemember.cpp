@@ -2,6 +2,10 @@
 #include <string>
 #include <list>
 #include <cstdio>
+#ifdef _WIN32
+#include <Windows.h>
+#endif // _WIN32
+
 using namespace std;
 
 
@@ -26,10 +30,10 @@ struct Hero
 	int defend = 10;
 	int curLife = 100;
 
-	int skill() 
+	int skill()
 	{
 		cout << "你使出两剑归宗" << endl;
-		return attack*2;
+		return attack * 2;
 	}
 };
 
@@ -59,13 +63,13 @@ struct Zombie : Ghost
 		life = 50;
 		attack = 8;
 		defend = 5;
-		curLife = 50;	
+		curLife = 50;
 	}
-	
-	int skill() 
+
+	int skill()
 	{
 		cout << name << "对你扑咬" << endl;
-		return attack*1.5;
+		return attack * 1.5;
 	}
 };
 
@@ -84,10 +88,10 @@ struct NagaQueue : Ghost
 		curLife = 388;
 	}
 
-	int skill() 
+	int skill()
 	{
 		cout << name << "朝你娇媚一笑，似乎暗藏玄机" << endl;
-		return attack*2;
+		return attack * 2;
 	}
 };
 
@@ -99,17 +103,17 @@ struct NashBaron : Ghost
 		job = "Boss";
 		sex = "男";
 		age = 10000;
-		money = 100*10000;
-		life = 100*10000;
+		money = 100 * 10000;
+		life = 100 * 10000;
 		attack = 999;
 		defend = 999;
-		curLife = 100*10000;
+		curLife = 100 * 10000;
 	}
-	
-	int skill() 
+
+	int skill()
 	{
 		cout << name << "发出怒吼，吐出龙息" << endl;
-		return attack*2;
+		return attack * 2;
 	}
 };
 
@@ -174,6 +178,7 @@ void archiveGame()
 
 }
 
+#ifdef __linux
 void setColor(int n)
 {
 	cout << "\033[" + to_string(n) + "m";
@@ -184,6 +189,26 @@ void restoreColor()
 	cout << "\033[39m";
 	cout << "\033[49m";
 }
+#endif // __linux
+#ifdef _WIN32
+void setColor(int n)
+{
+	WORD attr;
+	if (n == 31) attr = FOREGROUND_RED;
+	else if (n == 34) attr = FOREGROUND_BLUE;
+	else if (n > 30 && n < 39) attr = FOREGROUND_GREEN;
+	else if (n == 41) attr = BACKGROUND_RED;
+	else if (n == 42) attr = BACKGROUND_GREEN;
+	else if (n > 40 && n < 49) attr = BACKGROUND_BLUE;
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), attr);
+}
+
+void restoreColor()
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY);
+}
+#endif // _WIN32
 
 void tellStory()
 {
@@ -266,7 +291,7 @@ void purchaseTool()
 	// Deal with choose
 	if (key == '0') return;
 	bool res = checkPurchase(key - '0');
-	if (!res) 
+	if (!res)
 	{
 		purchaseTool();
 		return;
@@ -275,7 +300,7 @@ void purchaseTool()
 	if (key == '1') changeValue(Attack, 10);
 	else if (key == '2') changeValue(Attack, 30);
 	else if (key == '3') changeValue(Attack, 999);
-	else if (key == '4') 
+	else if (key == '4')
 	{
 		changeValue(Attack, 1333);
 		changeValue(Defend, -300);
@@ -297,7 +322,7 @@ void vanquishGhost()
 	setColor(31);
 	cout << info << endl;
 	restoreColor();
-	
+
 	up();
 	while (key != '0')
 	{
@@ -327,11 +352,11 @@ bool checkPurchase(int n)
 		name = "铜剑";
 		break;
 	case 3:
-		price = 10000*10000;
+		price = 10000 * 10000;
 		name = "干将莫邪";
 		break;
 	case 4:
-		price = 10000*10000;
+		price = 10000 * 10000;
 		name = "屠龙宝刀";
 		break;
 	case 5:
@@ -339,7 +364,7 @@ bool checkPurchase(int n)
 		name = "布衣";
 		break;
 	case 6:
-		price = 88*100;
+		price = 88 * 100;
 		name = "锁子甲";
 		break;
 	case 7:
@@ -347,11 +372,11 @@ bool checkPurchase(int n)
 		name = "白开水";
 		break;
 	case 8:
-		price = 100*10000;
+		price = 100 * 10000;
 		name = "天山雪莲";
 		break;
 	case 9:
-		price = 1000*10000;
+		price = 1000 * 10000;
 		name = "复活十字架";
 		break;
 	default:
@@ -360,7 +385,7 @@ bool checkPurchase(int n)
 
 	// Check the price with your money
 	string info;
-	if (price > hero.money) 
+	if (price > hero.money)
 	{
 		info = "金币不够，购买失败！";
 		setColor(33);
@@ -368,7 +393,7 @@ bool checkPurchase(int n)
 		restoreColor();
 		return false;
 	}
-	else 
+	else
 	{
 		setColor(32);
 		info = "购买成功，获得" + name;
@@ -413,7 +438,7 @@ void changeValue(ValueType type, int n)
 		cout << "发现奇奇怪怪的东东" << endl;
 		return;
 	}
-	
+
 	if (n > 0) info = valueName + "+" + to_string(n);
 	else if (n == 0) info = valueName + "不变";
 	else if (n < 0) info = valueName + "-" + to_string(n);
@@ -421,7 +446,7 @@ void changeValue(ValueType type, int n)
 	setColor(35);
 	cout << info << endl;
 	*value += n;
-	cout << "你的" + valueName + "由" << to_string(*value-n) << "变为了" << to_string(*value) << endl;
+	cout << "你的" + valueName + "由" << to_string(*value - n) << "变为了" << to_string(*value) << endl;
 	restoreColor();
 }
 
@@ -484,7 +509,7 @@ void fightInfo(Ghost *ghost)
 		"-------------------------";
 	setColor(46);
 	setColor(33);
-	cout << info << endl;
+	cout << endl << info << endl;
 	restoreColor();
 }
 
@@ -498,10 +523,10 @@ void heroFightRound(Ghost *ghost)
 	restoreColor();
 
 	cin >> key;
-	if (key == '2') 
+	if (key == '2')
 	{
 		int n = hero.skill();
-		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		int damage = (n - ghost->defend < 1 ? 1 : n - ghost->defend);
 		setColor(31);
 		cout << "对" << ghost->name << "造成了" << damage << "点伤害" << endl;
 		restoreColor();
@@ -513,11 +538,11 @@ void heroFightRound(Ghost *ghost)
 		setColor(31);
 		cout << "逃跑失败！" << endl;
 		restoreColor();
-	}		
-	else 
+	}
+	else
 	{
 		int n = hero.attack;
-		int damage = (n-ghost->defend < 1 ? 1 : n-ghost->defend);
+		int damage = (n - ghost->defend < 1 ? 1 : n - ghost->defend);
 		setColor(31);
 		cout << "你使出普通攻击，对" << ghost->name << "造成了" << damage << "点伤害" << endl;
 		restoreColor();
@@ -530,7 +555,7 @@ void ghostFightRound(Ghost *ghost)
 	setColor(36);
 	cout << ghost->name << "的回合……" << endl;
 	int n = ghost->skill();
-	int damage = (n-hero.defend < 1 ? 1 : n-hero.defend);
+	int damage = (n - hero.defend < 1 ? 1 : n - hero.defend);
 	setColor(31);
 	cout << ghost->name << "对你" << "造成了" << damage << "点伤害" << endl;
 	restoreColor();
@@ -539,7 +564,7 @@ void ghostFightRound(Ghost *ghost)
 
 void endFight(Ghost *ghost)
 {
-	if (ghost->curLife <= 0) 
+	if (ghost->curLife <= 0)
 	{
 		setColor(32);
 		cout << "战斗胜利！你击败了" << ghost->name << "，获得了" << ghost->money << "个铜币" << endl;
@@ -549,7 +574,7 @@ void endFight(Ghost *ghost)
 	}
 
 	// If you die, then end the game
-	if (hero.curLife <= 0) 
+	if (hero.curLife <= 0)
 	{
 		setColor(31);
 		cout << "惜败！你被" << ghost->name << "杀死了！" << endl;
