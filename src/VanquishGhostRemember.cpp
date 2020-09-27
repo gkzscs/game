@@ -171,6 +171,8 @@ void endGame()
 	setColor(31);
 	cout << str << endl;
 	restoreColor();
+
+	exit(0);
 }
 
 void archiveGame()
