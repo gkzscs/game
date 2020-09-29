@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#ifdef _WIN32
+#include <Windows.h>
+#endif // _WIN32
 using namespace std;
 
 
@@ -57,7 +60,7 @@ void setColor(int n)
 
 void restoreColor()
 {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE, FOREGROUND_INTENSITY);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY);
 }
 #endif	// WIN32
 #ifdef __linux
