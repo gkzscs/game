@@ -151,7 +151,7 @@ void playerRound(int n)
 {
 	string info = "輪到棋手" + to_string(n) + "的回合！";
 	setColor(31);
-	cout << endl << info << endl;
+	cout << info << endl;
 
 	// Input the position of chess
 	setColor(32);
@@ -267,7 +267,7 @@ void showBoard()
 {
 	string info = "當前棋盤格局為：";
 	setColor(34);
-	cout << info << endl;
+	cout << endl << info << endl;
 	
 	// Show chess board
 	setColor(32);
